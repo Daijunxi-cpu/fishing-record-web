@@ -1,0 +1,61 @@
+<view class="container">
+  <!-- 照片轮播 -->
+  <swiper class="image-swiper" indicator-dots="{{images.length > 1}}" autoplay="{{images.length > 1}}">
+    <swiper-item wx:for="{{images}}" wx:key="*this">
+      <image src="{{item}}" mode="aspectFill" bindtap="previewImage" data-url="{{item}}" binderror="onImageError"></image>
+    </swiper-item>
+  </swiper>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <view class="info-item">
+      <text class="label">日期时间</text>
+      <text class="value">{{record.date}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">钓鱼地点</text>
+      <text class="value">{{record.location}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">天气情况</text>
+      <text class="value">{{record.weather}}</text>
+    </view>
+  </view>
+
+  <!-- 钓获信息 -->
+  <view class="info-section">
+    <view class="info-item">
+      <text class="label">鱼种</text>
+      <text class="value">{{record.fishType}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">数量</text>
+      <text class="value">{{record.fishCount}}条</text>
+    </view>
+  </view>
+
+  <!-- 备注信息 -->
+  <view class="info-section" wx:if="{{record.remarks}}">
+    <view class="info-item">
+      <text class="label">备注</text>
+      <text class="value remarks">{{record.remarks}}</text>
+    </view>
+  </view>
+
+  <!-- 地图 -->
+  <view class="map-section">
+    <map
+      class="map"
+      latitude="{{record.latitude}}"
+      longitude="{{record.longitude}}"
+      markers="{{markers}}"
+      scale="16"
+      show-location
+    ></map>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-buttons">
+    <button class="delete-btn" bindtap="deleteRecord">删除记录</button>
+  </view>
+</view> 
