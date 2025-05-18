@@ -73,3 +73,29 @@
    - 用户体验优化
    - 上线准备
 
+## Git 操作
+1. **查看当前远程仓库（可选）**
+```bash
+git remote -v
+```
+如果已经有 origin 指向你的 GitHub 仓库，可以跳过第2步。
+
+2. **如果还没关联远程仓库，执行：**
+```bash
+git remote add origin https://github.com/Daijunxi-cpu/fishing-record-web.git
+```
+（如果已经有关联，想更换远程仓库地址，可以用：  
+`git remote set-url origin https://github.com/你的用户名/你的仓库名.git`）
+
+3. **修改你的代码并保存后，执行：**
+```bash
+git add .
+git commit -m "fix: 你的修改说明"
+git push -u origin main
+```
+
+4. **如果还没初始化 git 仓库，执行：**
+```bash
+git init
+```
+
