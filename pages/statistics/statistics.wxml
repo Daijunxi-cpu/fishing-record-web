@@ -1,0 +1,87 @@
+<view class="statistics-main">
+  <!-- 总览卡片 -->
+  <view class="overview-card card">
+    <image class="card-icon" src="/assets/icons/stats.png"/>
+    <view class="overview-item">
+      <text class="overview-num">{{totalRecords}}</text>
+      <text class="overview-label">总记录</text>
+    </view>
+    <view class="overview-item">
+      <text class="overview-num">{{totalFish}}</text>
+      <text class="overview-label">总鱼获</text>
+    </view>
+    <view class="overview-item">
+      <text class="overview-num">{{totalLocations}}</text>
+      <text class="overview-label">钓点</text>
+    </view>
+  </view>
+
+  <!-- 鱼种统计卡片 -->
+  <view class="stats-section card">
+    <view class="section-header">
+      <image class="section-icon" src="/assets/icons/fish.png"/>
+      <text class="section-title">鱼种统计</text>
+    </view>
+    <view class="fish-stats">
+      <view class="fish-item" wx:for="{{fishStats}}" wx:key="type">
+        <view class="fish-info">
+          <text class="fish-type">{{item.type}}</text>
+          <text class="fish-count">{{item.count}}条</text>
+        </view>
+        <view class="progress-bar">
+          <view class="progress" style="width: {{item.percentage}}%"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 天气统计卡片 -->
+  <view class="stats-section card">
+    <view class="section-header">
+      <image class="section-icon" src="/assets/icons/weather.png"/>
+      <text class="section-title">天气统计</text>
+    </view>
+    <view class="weather-stats">
+      <view class="weather-item" wx:for="{{weatherStats}}" wx:key="type">
+        <view class="weather-info">
+          <text class="weather-type">{{item.type}}</text>
+          <text class="weather-count">{{item.count}}次</text>
+        </view>
+        <view class="progress-bar">
+          <view class="progress" style="width: {{item.percentage}}%"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 钓点地图卡片 -->
+  <!-- <view class="stats-section card">
+    <view class="section-header">
+      <image class="section-icon" src="/assets/icons/marker.png"/>
+      <text class="section-title">钓点分布</text>
+    </view>
+    <map
+      class="location-map"
+      latitude="{{mapCenter.latitude}}"
+      longitude="{{mapCenter.longitude}}"
+      markers="{{locationMarkers}}"
+      scale="12"
+      show-location
+    ></map>
+  </view> -->
+
+  <!-- 时间分布卡片 -->
+  <view class="stats-section card">
+    <view class="section-header">
+      <image class="section-icon" src="/assets/icons/time.png"/>
+      <text class="section-title">时间分布</text>
+    </view>
+    <view class="time-stats">
+      <view class="time-item" wx:for="{{timeStats}}" wx:key="hour">
+        <text class="time-hour">{{item.hour}}时</text>
+        <view class="time-bar" style="height: {{item.percentage}}%"></view>
+        <text class="time-count">{{item.count}}次</text>
+      </view>
+    </view>
+  </view>
+</view> 
