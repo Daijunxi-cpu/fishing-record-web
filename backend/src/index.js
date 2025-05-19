@@ -21,11 +21,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/fishing-r
 .catch(err => console.error('MongoDB connection error:', err));
 
 // 路由
-// 你需要在 backend/src/routes 目录下创建 routes/records.js 和 routes/users.js 文件
-// 并在这里 require 进来
-// 例如：
-// app.use('/api/records', require('./routes/records'));
-// app.use('/api/users', require('./routes/users'));
+app.use('/api/records', require('./routes/records'));
+app.use('/api/users', require('./routes/users'));
 
 // 错误处理中间件
 app.use((err, req, res, next) => {
