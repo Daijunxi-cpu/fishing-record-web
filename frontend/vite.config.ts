@@ -31,6 +31,11 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true
       }
+    },
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'src/main.ts')
+      }
     }
   }
 }) 

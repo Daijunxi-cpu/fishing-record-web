@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Record = require('../models/Record'); // Assuming you have a Record model
 
 // 获取所有记录
 router.get('/', async (req, res) => {
@@ -14,10 +15,11 @@ router.get('/', async (req, res) => {
 // 创建新记录
 router.post('/', async (req, res) => {
   try {
-    // TODO: 实现创建记录的逻辑
-    res.json({ message: 'Create new record' });
+    const newRecord = new Record(req.body);
+    await newRecord.save();
+    res.status(201).json(newRecord);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
