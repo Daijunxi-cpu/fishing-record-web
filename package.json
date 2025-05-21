@@ -11,12 +11,14 @@
     "@vueuse/core": "^10.0.0",
     "axios": "^1.6.0",
     "element-plus": "^2.4.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.0",
     "pinia": "^2.1.0",
     "vue": "^3.3.0",
     "vue-router": "^4.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.17.50",
     "@vitejs/plugin-vue": "^5.2.4",
     "sass": "^1.89.0",
     "terser": "^5.39.2",

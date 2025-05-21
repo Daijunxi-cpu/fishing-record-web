@@ -1,0 +1,58 @@
+<!--index.wxml-->
+<image src="test.png" style="width:300rpx;height:300rpx;"/>
+<navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <view class="main-container">
+      <!-- 时间显示 -->
+      <view class="time-display">
+        <text class="current-time">{{currentTime}}</text>
+        <text class="current-date">{{currentDate}}</text>
+      </view>
+
+      <!-- 大框：最近一次钓鱼记录 -->
+      <view class="latest-record-card" wx:if="{{records.length > 0}}">
+        <image class="latest-photo" src="{{records[0].images[0]}}" mode="aspectFill" binderror="onImageError"/>
+        <view class="latest-info">
+          <text class="latest-date">{{records[0].date}}</text>
+          <text class="latest-location">{{records[0].location}}</text>
+        </view>
+      </view>
+      <view class="empty-latest" wx:if="{{records.length === 0}}">
+        <text>暂无钓鱼记录，快去添加吧！</text>
+      </view>
+
+      <!-- 统计卡片 -->
+      <view class="stats-card">
+        <view class="stats-item">
+          <text class="stats-num">{{totalRecords}}</text>
+          <text class="stats-label">总记录</text>
+        </view>
+        <view class="stats-item">
+          <text class="stats-num">{{totalFish}}</text>
+          <text class="stats-label">总鱼获</text>
+        </view>
+        <view class="stats-item">
+          <text class="stats-num">{{totalLocations}}</text>
+          <text class="stats-label">钓点</text>
+        </view>
+      </view>
+
+      <!-- 最近钓鱼缩略图列表 -->
+      <view class="recent-list-title">最近钓鱼</view>
+      <scroll-view class="recent-list" scroll-x="true">
+        <view class="recent-item" wx:for="{{records}}" wx:key="id" bindtap="goToDetail" data-id="{{item._id}}">
+          <image class="recent-thumb" src="{{item.images[0]}}" mode="aspectFill" binderror="onImageError"/>
+          <text class="recent-date">{{item.date}}</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{records.length === 0}}">
+      <image class="empty-icon" src="/assets/icons/empty.png"></image>
+      <text class="empty-text">还没有钓鱼记录</text>
+      <button class="add-btn" bindtap="goToAdd">添加记录</button>
+    </view>
+  </view>
+</scroll-view>

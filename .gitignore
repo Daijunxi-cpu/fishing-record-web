@@ -1,13 +1,17 @@
 # Dependencies
-node_modules
+node_modules/
 .pnp
 .pnp.js
 
-# Production
-dist
-build
+# Testing
+coverage/
 
-# Environment
+# Production
+build/
+dist/
+
+# Misc
+.DS_Store
 .env
 .env.local
 .env.development.local
@@ -19,15 +23,18 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Editor
-.vscode
-.idea
+# Editor directories and files
+.idea/
+.vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# OS
-.DS_Store
-Thumbs.db 
+# MongoDB
+data/
+mongodb.log
+
+# Uploads
+uploads/ 
