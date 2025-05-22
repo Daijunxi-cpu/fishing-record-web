@@ -1,8 +1,7 @@
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -11,12 +10,18 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000,
+    port: 3002,
     proxy: {
       '/api': {
         target: 'http://localhost:6789',
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false
       }
+    }
+  },
+  define: {
+    'process.env': {
+      VITE_API_URL: JSON.stringify('http://localhost:6789/api')
     }
   }
 })

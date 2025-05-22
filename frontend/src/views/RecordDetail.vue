@@ -28,49 +28,6 @@
         </div>
       </div>
       
-      <!-- 照片展示区 -->
-      <div class="photos-section">
-        <div v-if="record.photos && record.photos.length > 0" class="photo-gallery">
-          <div class="main-photo">
-            <img :src="record.photos[currentPhotoIndex]" alt="钓鱼照片" @error="handleImageError">
-          </div>
-          
-          <div v-if="record.photos.length > 1" class="photo-thumbnails">
-            <button 
-              class="thumbnail-nav prev" 
-              @click="prevPhoto" 
-              :disabled="currentPhotoIndex === 0"
-            >
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            
-            <div class="thumbnails-container">
-              <div 
-                v-for="(photo, index) in record.photos" 
-                :key="index"
-                :class="['thumbnail', { active: index === currentPhotoIndex }]"
-                @click="currentPhotoIndex = index"
-              >
-                <img :src="photo" alt="缩略图" @error="handleImageError">
-              </div>
-            </div>
-            
-            <button 
-              class="thumbnail-nav next" 
-              @click="nextPhoto" 
-              :disabled="currentPhotoIndex === record.photos.length - 1"
-            >
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-        
-        <div v-else class="no-photos">
-          <i class="fas fa-image"></i>
-          <p>暂无照片</p>
-        </div>
-      </div>
-      
       <!-- 记录详情信息 -->
       <div class="record-info-section">
         <div class="info-card">
@@ -83,7 +40,7 @@
               </div>
               <div class="location" v-if="record.location">
                 <i class="fas fa-map-marker-alt"></i>
-                {{ record.location }}
+                {{ record.location.name }}
               </div>
               <div class="weather">
                 <i :class="getWeatherIcon(record.weather)"></i>
@@ -113,18 +70,38 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { getRecord, deleteRecord as deleteRecordApi } from '../api'; // 引入 getRecord 和 deleteRecord 函数
+
+// 定义记录的类型接口
+interface FishingRecordDetail {
+  _id: string; // 使用 _id 匹配后端数据
+  date: string;
+  fishType: string;
+  count: number;
+  weight?: number; // 重量可能是可选的
+  location?: {
+    name: string;
+    address?: string;
+  };
+  weather?: string;
+  temperature?: number;
+  photos?: string[];
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 const route = useRoute();
 const router = useRouter();
 const loading = ref(true);
-const record = ref(null);
+const record = ref<FishingRecordDetail | null>(null); // 使用定义的类型，并允许为 null
 const currentPhotoIndex = ref(0);
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -136,45 +113,40 @@ const formatDate = (dateString) => {
 };
 
 // 获取天气图标
-const getWeatherIcon = (weather) => {
-  const icons = {
-    sunny: 'fas fa-sun',
-    cloudy: 'fas fa-cloud',
-    rainy: 'fas fa-cloud-rain',
-    snowy: 'fas fa-snowflake',
-    windy: 'fas fa-wind',
-    foggy: 'fas fa-smog'
+const getWeatherIcon = (weather: string | undefined) => {
+  const icons: Record<string, string> = {
+    '晴天': 'fas fa-sun',
+    '多云': 'fas fa-cloud',
+    '雨天': 'fas fa-cloud-rain',
+    '雪天': 'fas fa-snowflake',
+    '大风': 'fas fa-wind',
+    '雾天': 'fas fa-smog'
   };
-  return icons[weather] || 'fas fa-sun';
+  return weather ? icons[weather] || 'fas fa-sun' : 'fas fa-sun';
 };
 
 // 获取天气文字描述
-const getWeatherLabel = (weather) => {
-  const labels = {
-    sunny: '晴天',
-    cloudy: '多云',
-    rainy: '雨天',
-    snowy: '雪天',
-    windy: '大风',
-    foggy: '雾天'
-  };
-  return labels[weather] || weather;
+const getWeatherLabel = (weather: string | undefined) => {
+   return weather || '未知';
 };
 
 // 处理图片加载错误
-const handleImageError = (e) => {
-  e.target.src = '/assets/default-fishing.jpg';
+const handleImageError = (e: Event) => {
+  const target = e.target as HTMLImageElement;
+  if (target) {
+    target.src = '/assets/default-fishing.jpg';
+  }
 };
 
 // 照片导航
 const nextPhoto = () => {
-  if (currentPhotoIndex.value < record.value.photos.length - 1) {
+  if (record.value && record.value.photos && currentPhotoIndex.value < record.value.photos.length - 1) {
     currentPhotoIndex.value++;
   }
 };
 
 const prevPhoto = () => {
-  if (currentPhotoIndex.value > 0) {
+  if (record.value && record.value.photos && currentPhotoIndex.value > 0) {
     currentPhotoIndex.value--;
   }
 };
@@ -186,26 +158,26 @@ const goBack = () => {
 
 // 编辑记录
 const editRecord = () => {
-  router.push(`/edit/${route.params.id}`);
+  if (record.value) {
+     router.push(`/edit/${record.value._id}`); // 使用 _id 进行编辑
+  }
 };
 
 // 确认删除
 const confirmDelete = () => {
-  if (confirm('确定要删除这条钓鱼记录吗？此操作不可恢复。')) {
+  if (confirm('确定要删除这条钓鱼记录吗？此操作不可恢复。') && record.value) {
     deleteRecord();
   }
 };
 
 // 删除记录
 const deleteRecord = async () => {
+  if (!record.value) return; // 如果没有记录，则不执行删除
   try {
-    // 这里将来会调用API删除数据
-    // await api.deleteRecord(route.params.id);
+    // 调用API删除数据
+    await deleteRecordApi(record.value._id);
     
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    console.log('Record deleted:', route.params.id);
+    console.log('Record deleted:', record.value._id);
     
     // 删除成功后返回首页
     router.push('/');
@@ -218,33 +190,37 @@ const deleteRecord = async () => {
 // 加载记录数据
 const loadRecord = async () => {
   loading.value = true;
+  record.value = null; // 加载前清空当前记录
   
+  const recordId = route.params.id as string; // 获取路由参数 id
+  if (!recordId) {
+    console.error('Record ID is missing in route parameters.');
+    loading.value = false;
+    // 可以导航到错误页面或首页
+    router.push('/'); 
+    return;
+  }
+
   try {
-    // 这里将来会调用API获取数据
-    // const response = await api.getRecord(route.params.id);
-    // record.value = response.data;
+    // 调用API获取数据
+    const response = await getRecord(recordId);
     
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (response.data.success) {
+      record.value = response.data.data;
+       // 如果 record.value.photos 为空或 undefined，currentPhotoIndex 保持 0
+       if (!record.value?.photos || record.value.photos.length === 0) {
+         currentPhotoIndex.value = 0;
+       }
+    } else {
+      // 处理后端返回 success: false 的情况
+      console.error('Failed to load record:', response.data.message);
+      alert(response.data.message || '加载记录失败，请重试');
+      // 可以选择导航回首页或其他页面
+    }
     
-    // 模拟数据
-    record.value = {
-      id: route.params.id,
-      date: '2023-07-15T08:30:00',
-      fishType: '鲤鱼',
-      count: 3,
-      weight: 2.5,
-      location: '西湖断桥附近',
-      weather: 'sunny',
-      photos: [
-        '/assets/demo/fish1.jpg',
-        '/assets/demo/fish2.jpg'
-      ],
-      notes: '今天天气很好，在湖边钓到了几条不错的鲤鱼，水温适宜，鱼儿很活跃。使用了红虫作为诱饵，效果不错。'
-    };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load record:', error);
-    record.value = null;
+    record.value = null; // 加载失败时清空记录
   } finally {
     loading.value = false;
   }
@@ -253,6 +229,13 @@ const loadRecord = async () => {
 onMounted(() => {
   loadRecord();
 });
+
+// 当路由参数变化时重新加载数据（例如从一条记录详情跳转到另一条）
+// watch(() => route.params.id, (newId, oldId) => {
+//   if (newId !== oldId) {
+//     loadRecord();
+//   }
+// });
 </script>
 
 <style scoped>
@@ -362,122 +345,6 @@ onMounted(() => {
 
 .btn-delete:hover {
   background-color: #c0392b;
-}
-
-/* 照片展示区 */
-.photos-section {
-  margin-bottom: 30px;
-  background-color: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.photo-gallery {
-  display: flex;
-  flex-direction: column;
-}
-
-.main-photo {
-  width: 100%;
-  height: 500px;
-  overflow: hidden;
-}
-
-.main-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background-color: #f8f9fa;
-}
-
-.photo-thumbnails {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  background-color: #f8f9fa;
-}
-
-.thumbnails-container {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  flex-grow: 1;
-  scrollbar-width: thin;
-  scrollbar-color: #bbb #f1f1f1;
-}
-
-.thumbnails-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.thumbnails-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.thumbnails-container::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 3px;
-}
-
-.thumbnail {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  border: 3px solid transparent;
-  transition: border-color 0.2s;
-  flex-shrink: 0;
-}
-
-.thumbnail.active {
-  border-color: #3498db;
-}
-
-.thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.thumbnail-nav {
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin: 0 10px;
-  transition: background-color 0.2s;
-}
-
-.thumbnail-nav:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.thumbnail-nav:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.no-photos {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 0;
-  background-color: #f8f9fa;
-  color: #7f8c8d;
-}
-
-.no-photos i {
-  font-size: 3rem;
-  margin-bottom: 15px;
-  opacity: 0.3;
 }
 
 /* 记录信息区 */

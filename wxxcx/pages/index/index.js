@@ -62,70 +62,67 @@ Page({
   // 加载钓鱼记录
   async loadRecords(callback) {
     try {
-      const db = wx.cloud.database()
-      const records = await db.collection('fishing_records')
-        .orderBy('date', 'desc')
-        .limit(10)
-        .get()
-
-      // 计算统计数据
-      const stats = await this.calculateStats()
-
-      this.setData({
-        records: records.data,
-        ...stats
-      })
-
-      callback && callback()
+      // 使用后端API获取最近钓鱼记录
+      wx.request({
+        url: 'http://localhost:6789/api/records/recent',
+        method: 'GET',
+        success: (res) => {
+          if (res.data && res.data.success) {
+            // 计算统计数据
+            this.calculateStats();
+            
+            this.setData({
+              records: res.data.data
+            });
+          } else {
+            console.error('获取记录失败：', res.data);
+            wx.showToast({
+              title: '获取记录失败',
+              icon: 'none'
+            });
+          }
+          callback && callback();
+        },
+        fail: (err) => {
+          console.error('请求失败：', err);
+          wx.showToast({
+            title: '网络错误',
+            icon: 'none'
+          });
+          callback && callback();
+        }
+      });
     } catch (error) {
-      console.error('加载记录失败：', error)
+      console.error('加载记录失败：', error);
       wx.showToast({
         title: '加载失败',
         icon: 'none'
-      })
-      callback && callback()
+      });
+      callback && callback();
     }
   },
 
   // 计算统计数据
-  async calculateStats() {
-    try {
-      const db = wx.cloud.database()
-      const _ = db.command
-      
-      // 获取总记录数
-      const totalRecords = await db.collection('fishing_records').count()
-      
-      // 获取总鱼获数
-      const totalFish = await db.collection('fishing_records')
-        .aggregate()
-        .group({
-          _id: null,
-          total: _.sum('$fishCount')
-        })
-        .end()
-      
-      // 获取不同钓点数量
-      const locations = await db.collection('fishing_records')
-        .aggregate()
-        .group({
-          _id: '$location'
-        })
-        .end()
-
-      return {
-        totalRecords: totalRecords.total,
-        totalFish: totalFish.list[0]?.total || 0,
-        totalLocations: locations.list.length
+  calculateStats() {
+    wx.request({
+      url: 'http://localhost:6789/api/statistics',
+      method: 'GET',
+      success: (res) => {
+        if (res.data && res.data.success) {
+          const stats = res.data.summary;
+          this.setData({
+            totalRecords: stats.totalTrips || 0,
+            totalFish: stats.totalFish || 0,
+            totalLocations: 0 // 后端API暂无此数据，可以后续添加
+          });
+        } else {
+          console.error('获取统计数据失败：', res.data);
+        }
+      },
+      fail: (err) => {
+        console.error('请求统计数据失败：', err);
       }
-    } catch (error) {
-      console.error('计算统计数据失败：', error)
-      return {
-        totalRecords: 0,
-        totalFish: 0,
-        totalLocations: 0
-      }
-    }
+    });
   },
 
   // 跳转到记录详情

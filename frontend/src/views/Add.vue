@@ -159,6 +159,7 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const fileInput = ref(null);
@@ -170,7 +171,7 @@ const formData = reactive({
   date: new Date().toISOString().split('T')[0], // 默认今天
   time: new Date().toTimeString().slice(0, 5), // 默认当前时间
   location: '', // 钓鱼地点
-  weather: 'sunny', // 默认晴天
+  weather: '晴天', // 默认晴天，使用中文
   fishType: '',
   count: 1,
   weight: '',
@@ -179,12 +180,12 @@ const formData = reactive({
 
 // 天气选项
 const weatherOptions = [
-  { value: 'sunny', label: '晴天', icon: 'fas fa-sun' },
-  { value: 'cloudy', label: '多云', icon: 'fas fa-cloud' },
-  { value: 'rainy', label: '雨天', icon: 'fas fa-cloud-rain' },
-  { value: 'snowy', label: '雪天', icon: 'fas fa-snowflake' },
-  { value: 'windy', label: '大风', icon: 'fas fa-wind' },
-  { value: 'foggy', label: '雾天', icon: 'fas fa-smog' }
+  { value: '晴天', label: '晴天', icon: 'fas fa-sun' },
+  { value: '多云', label: '多云', icon: 'fas fa-cloud' },
+  { value: '雨天', label: '雨天', icon: 'fas fa-cloud-rain' },
+  { value: '雪天', label: '雪天', icon: 'fas fa-snowflake' },
+  { value: '大风', label: '大风', icon: 'fas fa-wind' },
+  { value: '雾天', label: '雾天', icon: 'fas fa-smog' }
 ];
 
 // 触发文件选择
@@ -229,23 +230,28 @@ const submitRecord = async () => {
     // 构建要提交的数据
     const recordData = {
       ...formData,
-      datetime: `${formData.date}T${formData.time}:00`,
-      photos: photos.value.map(p => p.file) // 实际项目中这里会处理文件上传
+      date: `${formData.date}T${formData.time}:00`,
+      temperature: 25, // 暂时使用默认温度
+      location: {
+        name: formData.location,
+        address: formData.location
+      },
+      photos: photos.value.map(p => p.url).filter(url => url.startsWith('http')), // 只发送有效的URL
+      userId: 'testuser' // 暂时使用测试用户ID
     };
     
-    // 这里将来会调用API提交数据
-    // const response = await api.createRecord(recordData);
+    // 调用API提交数据
+    const response = await axios.post('/api/records', recordData);
     
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('Record submitted:', recordData);
-    
-    // 提交成功后跳转到首页或记录详情页
-    router.push('/');
+    if (response.data.success) {
+      // 提交成功后跳转到首页
+      router.push('/');
+    } else {
+      throw new Error(response.data.message || '提交失败');
+    }
   } catch (error) {
     console.error('Failed to submit record:', error);
-    alert('提交失败，请重试');
+    alert(error.response?.data?.message || '提交失败，请重试');
   } finally {
     isSubmitting.value = false;
   }

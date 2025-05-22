@@ -1,30 +1,17 @@
 <template>
   <div class="fishing-home">
-    <!-- 顶部统计卡片 -->
-    <div class="stats-cards">
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-fish"></i></div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.totalRecords || 0 }}</div>
-          <div class="stat-label">钓鱼次数</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-weight"></i></div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.totalFish || 0 }}</div>
-          <div class="stat-label">钓获总数</div>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-trophy"></i></div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.biggestCatch || 0 }}kg</div>
-          <div class="stat-label">最大收获</div>
+    <PixelFisher />
+    <!-- TestConnection /> -->
+    <!-- 今日钓鱼运势 -->
+    <div class="fortune-container">
+      <div class="fortune-card">
+        <div class="fortune-icon"><i class="fas fa-fish"></i></div>
+        <div class="fortune-content">
+          <div class="fortune-value">{{ fortune }}</div>
+          <div class="fortune-label">今日运势</div>
         </div>
       </div>
     </div>
-
     <!-- 最近钓鱼记录展示 -->
     <div class="recent-records">
       <div class="section-header">
@@ -49,23 +36,16 @@
         <div 
           v-else
           v-for="record in recentRecords" 
-          :key="record.id" 
+          :key="record._id" 
           class="record-card"
-          @click="viewRecordDetail(record.id)"
+          @click="viewRecordDetail(record._id)"
         >
-          <div class="record-image">
-            <img 
-              :src="record.photos && record.photos.length > 0 ? record.photos[0] : '/assets/default-fishing.jpg'" 
-              :alt="record.fishType"
-              @error="handleImageError"
-            >
-          </div>
           <div class="record-info">
             <div class="record-date">{{ formatDate(record.date) }}</div>
             <div class="record-fish">{{ record.fishType }}</div>
             <div class="record-location" v-if="record.location">
               <i class="fas fa-map-marker-alt"></i>
-              {{ record.location }}
+              {{ record.location.name }}
             </div>
             <div class="record-weather">
               <i :class="getWeatherIcon(record.weather)"></i>
@@ -114,21 +94,74 @@
         </div>
       </div>
     </div>
+
+    <!-- 励志语句 -->
+    <div class="quote-container">
+      <p class="motivational-quote">{{ motivationalQuote }}</p>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, computed, onActivated } from 'vue';
 import { useRouter } from 'vue-router';
+import { getRecords, getStatistics } from '../api';
+import PixelFisher from '../components/PixelFisher.vue';
+
+interface FishingRecord {
+  _id: string;
+  date: string;
+  fishType: string;
+  count: number;
+  weight: number;
+  location: {
+    name: string;
+    address?: string;
+  };
+  weather: string;
+}
+
+interface FishStat {
+  name: string;
+  count: number;
+  percentage: number;
+}
 
 const router = useRouter();
 const loading = ref(true);
-const records = ref([]);
-const stats = ref({
-  totalRecords: 0,
-  totalFish: 0,
-  biggestCatch: 0
-});
+const records = ref<FishingRecord[]>([]);
+const fortune = ref('');
+
+const motivationalQuotes = [
+  '每次抛竿，都是对希望的投资。',
+  '耐心是钓鱼人最好的鱼饵。',
+  '享受过程，渔获只是惊喜。',
+  '不是鱼不好钓，是你去得不够多。',
+  '愿者上钩，亦或是你征服鱼！',
+  '手持钓竿，心随鱼动。',
+  '每一次空军，都是下次爆护的伏笔。',
+  '不在渔，在渔。',
+  '钓鱼不是爱好，是生活方式。',
+  '让浮漂跳舞，让心灵平静。',
+];
+
+const motivationalQuote = ref('');
+
+const generateFortune = () => {
+  const fortunes = [
+    '大吉：今天钓鱼运势极佳，适合出门钓鱼！',
+    '吉：今天钓鱼运势不错，可以尝试钓鱼。',
+    '中吉：今天钓鱼运势一般，建议选择合适的时间。',
+    '小吉：今天钓鱼运势稍差，建议改日再钓。',
+    '凶：今天钓鱼运势不佳，建议休息。'
+  ];
+  fortune.value = fortunes[Math.floor(Math.random() * fortunes.length)];
+};
+
+const generateQuote = () => {
+  const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+  motivationalQuote.value = motivationalQuotes[randomIndex];
+};
 
 // 最近的钓鱼记录，限制为6条
 const recentRecords = computed(() => {
@@ -140,17 +173,17 @@ const fishStats = computed(() => {
   if (!records.value.length) return [];
   
   // 统计各鱼种数量
-  const fishCounts = {};
-  records.value.forEach(record => {
+  const fishCounts: Record<string, number> = {};
+  records.value.forEach((record) => {
     if (!fishCounts[record.fishType]) {
       fishCounts[record.fishType] = 0;
     }
-    fishCounts[record.fishType] += record.count || 1;
+    fishCounts[record.fishType] += record.count;
   });
   
   // 转换为数组并计算百分比
   const total = Object.values(fishCounts).reduce((sum, count) => sum + count, 0);
-  const statsArray = Object.entries(fishCounts).map(([name, count]) => ({
+  const statsArray: FishStat[] = Object.entries(fishCounts).map(([name, count]) => ({
     name,
     count,
     percentage: Math.round((count / total) * 100)
@@ -161,7 +194,7 @@ const fishStats = computed(() => {
 });
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -171,34 +204,21 @@ const formatDate = (dateString) => {
 };
 
 // 获取天气图标
-const getWeatherIcon = (weather) => {
-  const icons = {
-    sunny: 'fas fa-sun',
-    cloudy: 'fas fa-cloud',
-    rainy: 'fas fa-cloud-rain',
-    snowy: 'fas fa-snowflake',
-    windy: 'fas fa-wind',
-    foggy: 'fas fa-smog'
+const getWeatherIcon = (weather: string) => {
+  const icons: Record<string, string> = {
+    '晴天': 'fas fa-sun',
+    '多云': 'fas fa-cloud',
+    '雨天': 'fas fa-cloud-rain',
+    '雪天': 'fas fa-snowflake',
+    '大风': 'fas fa-wind',
+    '雾天': 'fas fa-smog'
   };
   return icons[weather] || 'fas fa-sun';
 };
 
 // 获取天气文字描述
-const getWeatherLabel = (weather) => {
-  const labels = {
-    sunny: '晴天',
-    cloudy: '多云',
-    rainy: '雨天',
-    snowy: '雪天',
-    windy: '大风',
-    foggy: '雾天'
-  };
-  return labels[weather] || weather;
-};
-
-// 处理图片加载错误
-const handleImageError = (e) => {
-  e.target.src = '/assets/default-fishing.jpg';
+const getWeatherLabel = (weather: string) => {
+  return weather || '未知';
 };
 
 // 跳转到添加记录页面
@@ -207,7 +227,7 @@ const navigateToAdd = () => {
 };
 
 // 查看记录详情
-const viewRecordDetail = (id) => {
+const viewRecordDetail = (id: string) => {
   router.push(`/record/${id}`);
 };
 
@@ -215,61 +235,41 @@ const viewRecordDetail = (id) => {
 const loadData = async () => {
   loading.value = true;
   try {
-    // 这里将来会调用API获取数据
-    // const response = await api.getRecords();
-    // records.value = response.data;
+    const [recordsResponse, statsResponse] = await Promise.all([
+      getRecords(),
+      getStatistics()
+    ]);
     
-    // 模拟数据，实际项目中会替换为API调用
-    setTimeout(() => {
-      records.value = [
-        {
-          id: 1,
-          date: '2023-06-15',
-          fishType: '鲤鱼',
-          count: 3,
-          weight: 2.5,
-          location: '西湖断桥附近',
-          weather: 'sunny',
-          photos: ['/assets/demo/fish1.jpg']
-        },
-        {
-          id: 2,
-          date: '2023-07-20',
-          fishType: '草鱼',
-          count: 1,
-          weight: 4.2,
-          location: '钱塘江边',
-          weather: 'cloudy',
-          photos: ['/assets/demo/fish2.jpg']
-        },
-        {
-          id: 3,
-          date: '2023-08-05',
-          fishType: '鲫鱼',
-          count: 5,
-          weight: 1.8,
-          location: '千岛湖',
-          weather: 'rainy',
-          photos: []
-        }
-      ];
-      
-      stats.value = {
-        totalRecords: 10,
-        totalFish: 25,
-        biggestCatch: 4.2
-      };
-      
-      loading.value = false;
-    }, 1000);
-  } catch (error) {
+    if (recordsResponse.data.success) {
+      records.value = recordsResponse.data.data;
+    } else {
+      throw new Error(recordsResponse.data.message || '获取记录失败');
+    }
+    
+    // 更新统计数据
+    if (statsResponse.data.success) {
+      // 这里可以处理统计数据
+      console.log('Statistics:', statsResponse.data.data);
+    }
+    
+    loading.value = false;
+  } catch (error: any) {
     console.error('Failed to load data:', error);
+    alert(error.response?.data?.message || '加载数据失败，请重试');
     loading.value = false;
   }
 };
 
 onMounted(() => {
   loadData();
+  generateFortune();
+  generateQuote();
+});
+
+onActivated(() => {
+  loadData();
+  generateFortune();
+  generateQuote();
 });
 </script>
 
@@ -281,15 +281,33 @@ onMounted(() => {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 统计卡片样式 */
-.stats-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+/* 励志语句样式 */
+.quote-container {
+  text-align: center;
+  margin: 20px auto;
+  padding: 15px 20px;
+  background-color: #e8f5e9; /* 淡绿色背景 */
+  border-left: 5px solid #4caf50; /* 绿色左边框 */
+  border-radius: 8px;
+  max-width: 800px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.stat-card {
+.motivational-quote {
+  font-size: 1.1rem;
+  color: #333;
+  font-style: italic;
+  margin: 0;
+}
+
+/* 今日钓鱼运势样式 */
+.fortune-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.fortune-card {
   background: linear-gradient(135deg, #3498db, #2980b9);
   color: white;
   border-radius: 12px;
@@ -300,23 +318,23 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 
-.stat-card:hover {
+.fortune-card:hover {
   transform: translateY(-5px);
 }
 
-.stat-icon {
+.fortune-icon {
   font-size: 2.5rem;
   margin-right: 20px;
   opacity: 0.8;
 }
 
-.stat-value {
-  font-size: 2rem;
+.fortune-value {
+  font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.stat-label {
+.fortune-label {
   font-size: 0.9rem;
   opacity: 0.8;
 }
@@ -374,22 +392,6 @@ onMounted(() => {
 .record-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-.record-image {
-  height: 180px;
-  overflow: hidden;
-}
-
-.record-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.record-card:hover .record-image img {
-  transform: scale(1.05);
 }
 
 .record-info {
@@ -534,10 +536,6 @@ onMounted(() => {
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-  .stats-cards {
-    grid-template-columns: 1fr;
-  }
-  
   .records-grid {
     grid-template-columns: 1fr;
   }

@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <FloatingFish />
     <header class="app-header">
       <div class="header-content">
         <div class="logo" @click="navigateToHome">
@@ -45,6 +46,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import FloatingFish from './components/FloatingFish.vue';
 
 const router = useRouter();
 const currentYear = computed(() => new Date().getFullYear());

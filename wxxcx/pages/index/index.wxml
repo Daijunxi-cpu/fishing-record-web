@@ -12,9 +12,9 @@
 
       <!-- 大框：最近一次钓鱼记录 -->
       <view class="latest-record-card" wx:if="{{records.length > 0}}">
-        <image class="latest-photo" src="{{records[0].images[0]}}" mode="aspectFill" binderror="onImageError"/>
+        <image class="latest-photo" src="{{records[0].photos[0]}}" mode="aspectFill" binderror="onImageError"/>
         <view class="latest-info">
-          <text class="latest-date">{{records[0].date}}</text>
+          <text class="latest-date">{{records[0].formattedDate}} {{records[0].formattedTime}}</text>
           <text class="latest-location">{{records[0].location}}</text>
         </view>
       </view>
@@ -41,9 +41,9 @@
       <!-- 最近钓鱼缩略图列表 -->
       <view class="recent-list-title">最近钓鱼</view>
       <scroll-view class="recent-list" scroll-x="true">
-        <view class="recent-item" wx:for="{{records}}" wx:key="id" bindtap="goToDetail" data-id="{{item._id}}">
-          <image class="recent-thumb" src="{{item.images[0]}}" mode="aspectFill" binderror="onImageError"/>
-          <text class="recent-date">{{item.date}}</text>
+        <view class="recent-item" wx:for="{{records}}" wx:key="_id" bindtap="goToDetail" data-id="{{item._id}}">
+          <image class="recent-thumb" src="{{item.photos[0]}}" mode="aspectFill" binderror="onImageError"/>
+          <text class="recent-date">{{item.formattedDate}}</text>
         </view>
       </scroll-view>
     </view>

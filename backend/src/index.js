@@ -15,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // 路由
 app.use('/api/records', require('./routes/records'));
+app.use('/api/statistics', require('./routes/statistics'));
 
 // 错误处理中间件
 app.use((err, req, res, next) => {
@@ -22,6 +23,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: '服务器错误' });
 });
 
+// 将端口从3000改为6789
 const PORT = process.env.PORT || 6789;
 
 app.listen(PORT, () => {
