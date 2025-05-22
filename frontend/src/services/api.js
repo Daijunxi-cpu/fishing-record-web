@@ -2,7 +2,7 @@
 
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://meticulous-cat-production-eb26.up.railway.app/api',
   timeout: 10000,
   headers: {
     "Content-Type": "application/json"
