@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api', // 使用相对路径，让Vite代理处理
+  baseURL: 'https://meticulous-cat-production-eb26.up.railway.app',
   timeout: 30000, // 将超时时间增加到 30 秒
 });
 
