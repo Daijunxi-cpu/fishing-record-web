@@ -236,7 +236,7 @@ const loadData = async () => {
   loading.value = true;
   try {
     const [recordsResponse, statsResponse] = await Promise.all([
-      getRecords(),
+      getRecords(), // 临时注释：强制 Git 检测变化
       getStatistics()
     ]);
     
