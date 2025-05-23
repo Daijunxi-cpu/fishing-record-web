@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://motivated-harmony-production.up.railway.app',
+  baseURL: 'motivated-harmony-production.up.railway.app',
   timeout: 30000, // 将超时时间增加到 30 秒
 });
 
