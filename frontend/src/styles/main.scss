@@ -89,9 +89,9 @@ html, body {
 .btn-danger {
   background-color: $accent-color;
   color: white;
-  
+
   &:hover:not(:disabled) {
-    background-color: darken($accent-color, 10%);
+    // background-color: darken($accent-color, 10%); // 暂时注释掉这一行
   }
 }
 
