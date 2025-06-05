@@ -1,0 +1,292 @@
+.statistics-main {
+  padding: 24rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 24rpx rgba(33,150,243,0.08);
+  margin-bottom: 32rpx;
+  padding: 32rpx 24rpx 24rpx 24rpx;
+  position: relative;
+}
+
+.card-icon {
+  position: absolute;
+  top: -32rpx;
+  left: 32rpx;
+  width: 56rpx;
+  height: 56rpx;
+  opacity: 0.12;
+  z-index: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18rpx;
+}
+
+.section-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 12rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+/* 总览卡片 */
+.overview-card {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding-top: 40rpx;
+  padding-bottom: 32rpx;
+}
+
+.overview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.overview-num {
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #2196F3;
+  margin-bottom: 8rpx;
+}
+
+.overview-label {
+  font-size: 24rpx;
+  color: #888;
+}
+
+/* 统计区域 */
+.stats-section {
+  margin-bottom: 24rpx;
+}
+
+/* 鱼种统计 */
+.fish-stats {
+  padding: 10rpx 0;
+}
+
+.fish-item {
+  margin-bottom: 18rpx;
+}
+
+.fish-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.fish-type {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.fish-count {
+  font-size: 24rpx;
+  color: #888;
+}
+
+/* 天气统计 */
+.weather-stats {
+  padding: 10rpx 0;
+}
+
+.weather-item {
+  margin-bottom: 18rpx;
+}
+
+.weather-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.weather-type {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.weather-count {
+  font-size: 24rpx;
+  color: #888;
+}
+
+/* 进度条 */
+.progress-bar {
+  height: 14rpx;
+  background: #e0f2f1;
+  border-radius: 7rpx;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #2196F3 60%, #64B5F6 100%);
+  border-radius: 7rpx;
+  transition: width 0.3s ease;
+}
+
+/* 钓点地图 */
+.location-map {
+  width: 100%;
+  height: 320rpx;
+  border-radius: 12rpx;
+  margin-top: 12rpx;
+}
+
+/* 时间分布 */
+.time-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 180rpx;
+  padding: 20rpx 0 0 0;
+}
+
+.time-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 6rpx;
+}
+
+.time-hour {
+  font-size: 20rpx;
+  color: #888;
+  margin-bottom: 6rpx;
+}
+
+.time-bar {
+  width: 100%;
+  background: linear-gradient(180deg, #2196F3 60%, #90CAF9 100%);
+  border-radius: 8rpx 8rpx 0 0;
+  transition: height 0.3s ease;
+}
+
+.time-count {
+  font-size: 20rpx;
+  color: #888;
+  margin-top: 6rpx;
+}
+
+.add-main {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+.upload-bar {
+  background: #fff;
+  padding: 24rpx 0 12rpx 24rpx;
+  border-radius: 0 0 20rpx 20rpx;
+  margin-bottom: 18rpx;
+}
+
+.img-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.img-thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  margin-right: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(76,175,80,0.08);
+}
+
+.img-add {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  background: #E3F2FD;
+  color: #2196F3;
+  font-size: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(33,150,243,0.08);
+}
+
+.form-list {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 12rpx 24rpx 12rpx 24rpx;
+  margin-bottom: 18rpx;
+  box-shadow: 0 2rpx 10rpx rgba(33,150,243,0.05);
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1rpx solid #f0f0f0;
+  padding: 18rpx 0;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 12rpx;
+  opacity: 0.7;
+}
+
+.form-label {
+  width: 100rpx;
+  color: #333;
+  font-size: 28rpx;
+}
+
+.form-value {
+  flex: 1;
+  color: #666;
+  font-size: 28rpx;
+  padding-left: 12rpx;
+}
+
+.form-item-multiline .form-value {
+  min-height: 80rpx;
+  padding-top: 8rpx;
+}
+
+.footer-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #fff;
+  box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+  padding: 24rpx 40rpx;
+  z-index: 10;
+}
+
+.save-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #2196F3 60%, #64B5F6 100%);
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 44rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border: none;
+}
+
+.save-btn:active {
+  opacity: 0.8;
+} 

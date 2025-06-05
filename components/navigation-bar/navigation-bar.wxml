@@ -1,0 +1,6 @@
+<view class="custom-nav" style="padding-top: {{statusBarHeight}}px">
+  <view class="nav-content">
+    <image class="fish-icon" src="/assets/icons/fish.png" mode="aspectFit"></image>
+    <text class="nav-title">钓鱼记录</text>
+  </view>
+</view>

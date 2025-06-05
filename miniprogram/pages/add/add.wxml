@@ -1,0 +1,79 @@
+<view class="container">
+  <form bindsubmit="submitForm">
+    <!-- 照片上传区域 -->
+    <view class="upload-section">
+      <view class="section-title">钓鱼照片</view>
+      <view class="image-list">
+        <view class="image-item" wx:for="{{images}}" wx:key="*this">
+          <image src="{{item}}" mode="aspectFill" bindtap="previewImage" data-url="{{item}}" binderror="onImageError"></image>
+          <view class="delete-btn" catchtap="deleteImage" data-index="{{index}}">×</view>
+        </view>
+        <view class="upload-btn" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+          <text class="upload-icon">+</text>
+          <text class="upload-text">添加照片</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 基本信息 -->
+    <view class="form-section">
+      <view class="section-title">基本信息</view>
+      <!-- 日期时间选择 -->
+      <view class="form-item">
+        <text class="label">日期时间</text>
+        <picker mode="multiSelector" value="{{dateTimeIndex}}" range="{{dateTimeArray}}" bindchange="bindDateTimeChange">
+          <view class="picker">
+            {{dateTime || '请选择日期时间'}}
+          </view>
+        </picker>
+      </view>
+      <!-- 地点输入 -->
+      <view class="form-item">
+        <text class="label">钓鱼地点</text>
+        <input name="location" value="{{location}}" placeholder="请输入钓鱼地点" bindinput="onLocationInput"/>
+      </view>
+      <!-- 天气选择 -->
+      <view class="form-item">
+        <text class="label">天气情况</text>
+        <picker bindchange="bindWeatherChange" value="{{weatherIndex}}" range="{{weatherOptions}}">
+          <view class="picker">
+            {{weatherOptions[weatherIndex] || '请选择天气'}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 钓获信息 -->
+    <view class="form-section">
+      <view class="section-title">钓获信息</view>
+      <!-- 鱼种选择 -->
+      <view class="form-item">
+        <text class="label">鱼种</text>
+        <picker bindchange="bindFishTypeChange" value="{{fishTypeIndex}}" range="{{fishTypeOptions}}">
+          <view class="picker">
+            {{fishTypeOptions[fishTypeIndex] || '请选择鱼种'}}
+          </view>
+        </picker>
+      </view>
+      <view class="form-item" wx:if="{{fishTypeOptions[fishTypeIndex] === '其他'}}">
+        <text class="label">自定义鱼种</text>
+        <input name="customFishType" value="{{customFishType}}" placeholder="请输入鱼种名称" bindinput="onCustomFishTypeInput"/>
+      </view>
+      <!-- 数量输入 -->
+      <view class="form-item">
+        <text class="label">数量</text>
+        <input type="number" name="fishCount" value="{{fishCount}}" placeholder="请输入钓获数量" bindinput="onFishCountInput"/>
+      </view>
+      <!-- 备注信息 -->
+      <view class="form-item">
+        <text class="label">备注</text>
+        <textarea name="remarks" value="{{remarks}}" placeholder="添加备注信息（选填）" maxlength="200"/>
+      </view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="submit-section">
+      <button class="submit-btn" form-type="submit" loading="{{submitting}}">保存记录</button>
+    </view>
+  </form>
+</view> 
